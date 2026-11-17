@@ -1,5 +1,13 @@
 # ERM Zapad power outages
 
+> [!IMPORTANT]
+> **This repository is no longer maintained.** The integration continues as **Bulgaria power
+> outages** in <https://github.com/wildsystems/ws-bg-power-outages>, which also covers
+> Електроразпределение Юг and Електроразпределение Север. Version 0.1.1 is the last one here: it
+> works as 0.1.0 and shows a repair under Settings → Repairs with the steps to move. The new
+> integration does not take over existing entries; follow the
+> [upgrade guide](https://github.com/wildsystems/ws-bg-power-outages/blob/main/docs/upgrade-0.2.md).
+
 Home Assistant custom integration that reports ЕРМ Запад (Electrohold distribution, western
 Bulgaria) power outages for a client number or for a place.
 
