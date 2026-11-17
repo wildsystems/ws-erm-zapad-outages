@@ -4,10 +4,10 @@
   "codeowners": ["@nivanov0"],
   "config_flow": true,
   "dependencies": [],
-  "documentation": "https://github.com/wildsystems/ws-erm-zapad-outages",
+  "documentation": "https://github.com/wildsystems/ws-bg-power-outages",
   "integration_type": "service",
   "iot_class": "cloud_polling",
-  "issue_tracker": "https://github.com/wildsystems/ws-erm-zapad-outages/issues",
+  "issue_tracker": "https://github.com/wildsystems/ws-bg-power-outages/issues",
   "requirements": [],
-  "version": "0.1.0"
+  "version": "0.1.1"
 }

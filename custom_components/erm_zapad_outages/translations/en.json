@@ -109,6 +109,10 @@
     }
   },
   "issues": {
+    "moved": {
+      "title": "ERM Zapad power outages moved to Bulgaria power outages",
+      "description": "This integration continues as **Bulgaria power outages** in a new repository, which also covers Електроразпределение Юг and Електроразпределение Север: {repository_url}\n\nThis version is the last one of ERM Zapad power outages and keeps working as before, but it gets no more updates. The new integration does not take over these entries. To move:\n\n1. Write down your entries: the client number, or the place and municipality.\n2. Delete every ERM Zapad power outages entry under Settings → Devices & services.\n3. Uninstall ERM Zapad power outages: Settings → Marketplace → ⋮ → **Uninstall** (with HACS: ⋮ → **Remove**).\n4. Add the new repository: Settings → Marketplace → **Add from link** (with HACS: ⋮ → **Custom repositories**, type Integration) with {repository_url}. Install **Bulgaria power outages** and restart Home Assistant.\n5. Add the entries again with the same values (operator ЕРМ Запад). The entity IDs come out the same.\n\nThe upgrade guide (**Learn more**) also covers the alert blueprint and what has to be set again."
+    },
     "unrecognised_answer": {
       "title": "ERM Zapad answer not understood ({title})",
       "description": "An answer from the ERM Zapad website for \"{title}\" could not be read; its format may have changed. The last known data stays shown, and this notice disappears once an answer is understood again.\n\nDetails: {error}\n\nWhen reporting this as a GitHub issue, check the details first and remove any personal data (address, client number)."

@@ -9,10 +9,25 @@ from homeassistant.helpers import issue_registry as ir
 from .const import CONF_PLACE, CONF_POINTS, DOMAIN, LOGGER
 from .coordinator import ErmZapadConfigEntry, create_coordinator, format_issue_id
 
+MOVED_ISSUE_ID = "moved"
+NEW_REPOSITORY_URL = "https://github.com/wildsystems/ws-bg-power-outages"
+UPGRADE_URL = f"{NEW_REPOSITORY_URL}/blob/main/docs/upgrade-0.2.md"
+
 PLATFORMS = [Platform.BINARY_SENSOR, Platform.CALENDAR, Platform.EVENT, Platform.SENSOR]
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ErmZapadConfigEntry) -> bool:
+    # Created before the first refresh, so it shows even when the site cannot be reached.
+    ir.async_create_issue(
+        hass,
+        DOMAIN,
+        MOVED_ISSUE_ID,
+        is_fixable=False,
+        severity=ir.IssueSeverity.WARNING,
+        translation_key="moved",
+        learn_more_url=UPGRADE_URL,
+        translation_placeholders={"repository_url": NEW_REPOSITORY_URL},
+    )
     coordinator = create_coordinator(hass, entry)
     await coordinator.async_config_entry_first_refresh()
     entry.runtime_data = coordinator
