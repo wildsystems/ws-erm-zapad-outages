@@ -1,0 +1,117 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "ERM Zapad power outages",
+        "description": "What to monitor. A client number is exact and also reports unplanned outages; a place uses the daily planned schedules and is only indicative.",
+        "menu_options": {
+          "client": "By client number (recommended)",
+          "place": "By place"
+        }
+      },
+      "client": {
+        "title": "Client number",
+        "description": "The 12-digit client number from the electricity bill. Add each client number separately.",
+        "data": {
+          "client_number": "Client number"
+        },
+        "data_description": {
+          "client_number": "12 digits, e.g. 300000000000. Metering points (32Z…) are not supported."
+        }
+      },
+      "place": {
+        "title": "Place to monitor",
+        "description": "Name of the place as written in the ERM Zapad daily schedules (Cyrillic, case does not matter). It is matched as a substring of the place names in the schedule, e.g. ЗЛАТУША, ОБЕЛЯ, ГОРНА БАНЯ.",
+        "data": {
+          "place": "Place",
+          "district": "Municipality / Sofia district (optional)"
+        },
+        "data_description": {
+          "place": "Village, town or quarter, e.g. ЗЛАТУША.",
+          "district": "Narrows the match when the name exists in several municipalities, e.g. БОЖУРИЩЕ. For Sofia this is the district (ВРЪБНИЦА, ОВЧА КУПЕЛ)."
+        }
+      },
+      "reconfigure": {
+        "title": "Change the monitored target",
+        "description": "Enter a new client number or place (same kind as before).",
+        "data": {
+          "client_number": "Client number",
+          "place": "Place",
+          "district": "Municipality / Sofia district (optional)"
+        },
+        "data_description": {
+          "client_number": "12 digits from the electricity bill.",
+          "place": "Village, town or quarter, e.g. ЗЛАТУША.",
+          "district": "Narrows the match when the name exists in several municipalities, e.g. БОЖУРИЩЕ."
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Could not reach the ERM Zapad website.",
+      "rate_limited": "ERM Zapad refused the request (request limit reached). Try again later.",
+      "invalid_place": "Enter the place name.",
+      "invalid_client_number": "The client number must have exactly 12 digits.",
+      "unknown_client_number": "ERM Zapad does not know this client number. Check it on the electricity bill."
+    },
+    "abort": {
+      "already_configured": "This client number or place is already configured.",
+      "reconfigure_successful": "The configuration was updated."
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "outage_now": {
+        "name": "Outage now",
+        "state": {
+          "on": "Yes",
+          "off": "No"
+        }
+      },
+      "outage_tomorrow": {
+        "name": "Outage tomorrow",
+        "state": {
+          "on": "Yes",
+          "off": "No"
+        }
+      }
+    },
+    "calendar": {
+      "planned_outages": {
+        "name": "Planned outages",
+        "state": {
+          "on": "In progress",
+          "off": "No"
+        }
+      }
+    },
+    "event": {
+      "new_outage": {
+        "name": "New outage published",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "published": "Published"
+            }
+          }
+        }
+      }
+    },
+    "sensor": {
+      "next_outage": {
+        "name": "Next outage"
+      },
+      "next_outage_start": {
+        "name": "Next outage start"
+      },
+      "next_outage_end": {
+        "name": "Next outage end"
+      }
+    }
+  },
+  "issues": {
+    "unrecognised_answer": {
+      "title": "ERM Zapad answer not understood ({title})",
+      "description": "An answer from the ERM Zapad website for \"{title}\" could not be read; its format may have changed. The last known data stays shown, and this notice disappears once an answer is understood again.\n\nDetails: {error}\n\nWhen reporting this as a GitHub issue, check the details first and remove any personal data (address, client number)."
+    }
+  }
+}

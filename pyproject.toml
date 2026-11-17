@@ -28,5 +28,5 @@ mypy_path = "custom_components"
 # Home Assistant 2026.11+ types its flow helpers with probatio and aliases voluptuous to it at
 # start-up; voluptuous schemas are still accepted at runtime (and required before 2026.11).
 [[tool.mypy.overrides]]
-module = "bg_power_outages.config_flow"
+module = "erm_zapad_outages.config_flow"
 disable_error_code = ["arg-type"]

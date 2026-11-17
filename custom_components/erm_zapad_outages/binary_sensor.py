@@ -1,4 +1,4 @@
-"""Binary sensors: outage scheduled for tomorrow; outage in progress right now."""
+"""Binary sensors: outage scheduled for tomorrow; outage registered right now (client number)."""
 
 from __future__ import annotations
 
@@ -10,30 +10,30 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from .api import Outage
-from .coordinator import OutageConfigEntry, OutageCoordinator
-from .entity import OutageEntity, as_dicts, tomorrow_local
+from .const import CONF_CLIENT_NUMBER
+from .coordinator import ErmZapadConfigEntry, ErmZapadCoordinator
+from .entity import ErmZapadEntity, as_dicts, tomorrow_local
 
 PARALLEL_UPDATES = 0
 
 
 async def async_setup_entry(
     hass: HomeAssistant,
-    entry: OutageConfigEntry,
+    entry: ErmZapadConfigEntry,
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
     coordinator = entry.runtime_data
     entities: list[BinarySensorEntity] = [OutageTomorrowBinarySensor(coordinator)]
-    # Only where the operator reports outages registered right now; planned schedules alone do
-    # not say whether the power is off.
-    if coordinator.source.has_current:
+    # By place the schedule only says that part of the place may be affected.
+    if CONF_CLIENT_NUMBER in entry.data:
         entities.append(OutageNowBinarySensor(coordinator))
     async_add_entities(entities)
 
 
-class OutageTomorrowBinarySensor(OutageEntity, BinarySensorEntity):
+class OutageTomorrowBinarySensor(ErmZapadEntity, BinarySensorEntity):
     _clock_interval = timedelta(minutes=1)
 
-    def __init__(self, coordinator: OutageCoordinator) -> None:
+    def __init__(self, coordinator: ErmZapadCoordinator) -> None:
         super().__init__(coordinator, "outage_tomorrow")
 
     def _tomorrow(self) -> list[Outage]:
@@ -51,15 +51,10 @@ class OutageTomorrowBinarySensor(OutageEntity, BinarySensorEntity):
         return {"outages": as_dicts(self._tomorrow())}
 
 
-class OutageNowBinarySensor(OutageEntity, BinarySensorEntity):
-    """An outage is registered right now, or a planned one's time window lasts.
+class OutageNowBinarySensor(ErmZapadEntity, BinarySensorEntity):
+    """ERM Zapad has an outage registered for the client number (planned or unplanned)."""
 
-    For a client number the operator's registration alone counts.
-    """
-
-    _clock_interval = timedelta(minutes=1)
-
-    def __init__(self, coordinator: OutageCoordinator) -> None:
+    def __init__(self, coordinator: ErmZapadCoordinator) -> None:
         super().__init__(coordinator, "outage_now")
 
     @property
@@ -76,13 +71,9 @@ class OutageNowBinarySensor(OutageEntity, BinarySensorEntity):
         current = self.coordinator.current_outages()
         if not current:
             return {}
-        attrs = {
+        return {
             "kind": current[0].kind,
             "start": current[0].start.isoformat(),
             "expected_end": current[0].end.isoformat() if current[0].end else None,
+            "point": current[0].point,
         }
-        if current[0].point:
-            attrs["point"] = current[0].point
-        else:
-            attrs["place"] = current[0].place
-        return attrs

@@ -1,27 +1,26 @@
 blueprint:
-  name: Bulgaria power outage alert
+  name: ERM Zapad planned outage alert
   description: >-
-    Notifies when the distribution operator publishes a new planned outage for the monitored
-    client number or place, and again in the evening before the outage day. In the notification
-    actions use {{ title }} and {{ message }}.
+    Notifies when ERM Zapad publishes a planned outage for the client number or place and again
+    in the evening before the outage day. In the notification actions use {{ title }} and
+    {{ message }}.
   domain: automation
   # yamllint disable-line rule:line-length
-  source_url: https://github.com/wildsystems/ws-bg-power-outages/blob/main/blueprints/automation/bg_power_outages/outage_alert.yaml
+  source_url: https://github.com/wildsystems/ws-erm-zapad-outages/blob/main/blueprints/automation/erm_zapad_outages/outage_alert.yaml
   input:
     new_outage_entity:
       name: New outage event
       selector:
         entity:
           filter:
-            - integration: bg_power_outages
+            - integration: erm_zapad_outages
               domain: event
     tomorrow_entity:
       name: Outage tomorrow sensor
-      description: Of the same client number or place as the event.
       selector:
         entity:
           filter:
-            - integration: bg_power_outages
+            - integration: erm_zapad_outages
               domain: binary_sensor
     reminder_time:
       name: Evening reminder time
@@ -35,7 +34,7 @@ blueprint:
       default:
         - action: persistent_notification.create
           data:
-            notification_id: "bg_power_outage_{{ trigger.id }}_{{ this.entity_id }}"
+            notification_id: "erm_zapad_outage_{{ trigger.id }}"
             title: "{{ title }}"
             message: "{{ message }}"
       selector:
@@ -46,6 +45,9 @@ mode: queued
 triggers:
   - trigger: state
     entity_id: !input new_outage_entity
+    not_from:
+      - unavailable
+      - unknown
     id: published
   - trigger: time
     at: !input reminder_time
@@ -53,11 +55,8 @@ triggers:
 
 variables:
   tomorrow_entity: !input tomorrow_entity
-  source_entity: "{{ trigger.entity_id if trigger.id == 'published' else tomorrow_entity }}"
   # 'published': only a freshly fired event; a state restored after a restart or an unavailable
-  # period carries an old timestamp and is ignored. The trigger does not exclude 'unknown' (the
-  # state before the first event) or 'unavailable' (a new event can arrive with the entity
-  # becoming available again). Text from the schedules is stripped of
+  # period carries an old timestamp and is ignored. Text from the schedules is stripped of
   # Markdown link characters, as notifications may render Markdown.
   items: >-
     {%- if trigger.id == 'published' -%}
@@ -72,21 +71,16 @@ variables:
     {%- else -%}
       {{ state_attr(tomorrow_entity, 'outages') or [] }}
     {%- endif -%}
-  # The device is named after the monitored place or address; its manufacturer is the operator.
-  target: "{{ device_attr(source_entity, 'name_by_user') or device_attr(source_entity, 'name') or '' }}"
-  operator: "{{ device_attr(source_entity, 'manufacturer') or 'Прекъсване на тока' }}"
   title: >-
-    {{ ('Утре: прекъсване на тока' if trigger.id == 'evening'
-        else operator ~ ': ново планирано прекъсване')
-       ~ (' – ' ~ target if target else '') }}
+    {{ 'Утре: планирано прекъсване на тока' if trigger.id == 'evening'
+       else 'ЕРМ Запад: ново планирано прекъсване' }}
   message: |-
     {% for o in items -%}
     {%- set end = as_datetime(o.end).strftime('%H:%M') if o.end else '?' -%}
-    {%- set place = o.place | regex_replace('[\\[\\]()<>]', '') | truncate(160, true, '…', 0) -%}
+    {%- set place = o.place | regex_replace('[\\[\\]()<>]', '') -%}
     {%- set district = ' (общ. ' ~ o.district | regex_replace('[\\[\\]()<>]', '') ~ ')'
           if o.district else '' -%}
-    {%- set kind = {'possible': 'възможни смущения: ', 'unplanned': 'непланирано: '}.get(o.kind, '') -%}
-    {{ as_datetime(o.start).strftime('%d.%m %H:%M') }} – {{ end }} {{ kind }}{{ place }}{{ district }}
+    {{ as_datetime(o.start).strftime('%d.%m %H:%M') }} – {{ end }} {{ place }}{{ district }}
     {% endfor -%}
     {%- if items | rejectattr('point', 'defined') | list | count > 0 -%}
     Индикативно: засяга част от мястото, не непременно вашия адрес.

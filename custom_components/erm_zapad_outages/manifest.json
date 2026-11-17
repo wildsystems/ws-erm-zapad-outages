@@ -1,0 +1,13 @@
+{
+  "domain": "erm_zapad_outages",
+  "name": "ERM Zapad power outages",
+  "codeowners": ["@nivanov0"],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://github.com/wildsystems/ws-erm-zapad-outages",
+  "integration_type": "service",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/wildsystems/ws-erm-zapad-outages/issues",
+  "requirements": [],
+  "version": "0.1.0"
+}

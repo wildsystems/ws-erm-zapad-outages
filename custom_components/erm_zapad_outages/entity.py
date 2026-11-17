@@ -10,9 +10,8 @@ from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .api import Outage
-from .const import CONF_CLIENT_NUMBER, DOMAIN, TIMEZONE
-from .coordinator import OutageCoordinator
-from .operators.erm_zapad import CHECK_URL
+from .const import ATTRIBUTION, CHECK_URL, DOMAIN, TIMEZONE
+from .coordinator import ErmZapadCoordinator
 
 
 def now_local() -> datetime:
@@ -39,25 +38,24 @@ def pending(outages: list[Outage]) -> list[Outage]:
     return [o for o in outages if o.end is None or o.end > now]
 
 
-class OutageEntity(CoordinatorEntity[OutageCoordinator]):
+class ErmZapadEntity(CoordinatorEntity[ErmZapadCoordinator]):
     _attr_has_entity_name = True
+    _attr_attribution = ATTRIBUTION
     _unrecorded_attributes = UNRECORDED
     # States that depend on the clock (tomorrow, not yet ended) are re-evaluated at this interval.
     _clock_interval: timedelta | None = None
 
-    def __init__(self, coordinator: OutageCoordinator, key: str) -> None:
+    def __init__(self, coordinator: ErmZapadCoordinator, key: str) -> None:
         super().__init__(coordinator)
         entry = coordinator.config_entry
-        operator = coordinator.operator
         self._attr_translation_key = key
         self._attr_unique_id = f"{entry.entry_id}_{key}"
-        self._attr_attribution = f"Data provided by {operator.name}"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, entry.entry_id)},
             name=entry.title,
-            manufacturer=operator.name,
+            manufacturer="ЕРМ Запад",
             entry_type=DeviceEntryType.SERVICE,
-            configuration_url=CHECK_URL if CONF_CLIENT_NUMBER in entry.data else operator.url,
+            configuration_url=CHECK_URL,
         )
 
     @property

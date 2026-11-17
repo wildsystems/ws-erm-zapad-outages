@@ -6,8 +6,8 @@ from homeassistant.components.event import EventEntity
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
-from .coordinator import OutageConfigEntry, OutageCoordinator
-from .entity import OutageEntity, as_dicts
+from .coordinator import ErmZapadConfigEntry, ErmZapadCoordinator
+from .entity import ErmZapadEntity, as_dicts
 
 PARALLEL_UPDATES = 0
 
@@ -16,18 +16,18 @@ EVENT_PUBLISHED = "published"
 
 async def async_setup_entry(
     hass: HomeAssistant,
-    entry: OutageConfigEntry,
+    entry: ErmZapadConfigEntry,
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
     async_add_entities([NewOutageEvent(entry.runtime_data)])
 
 
-class NewOutageEvent(OutageEntity, EventEntity):
+class NewOutageEvent(ErmZapadEntity, EventEntity):
     """Not fired for outages already known at start-up; the calendar/binary sensor cover those."""
 
     _attr_event_types = [EVENT_PUBLISHED]
 
-    def __init__(self, coordinator: OutageCoordinator) -> None:
+    def __init__(self, coordinator: ErmZapadCoordinator) -> None:
         super().__init__(coordinator, "new_outage")
 
     @callback

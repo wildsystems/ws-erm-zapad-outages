@@ -10,8 +10,8 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from .api import Outage
-from .coordinator import OutageConfigEntry, OutageCoordinator
-from .entity import OutageEntity, as_dicts, pending
+from .coordinator import ErmZapadConfigEntry, ErmZapadCoordinator
+from .entity import ErmZapadEntity, as_dicts, pending
 
 PARALLEL_UPDATES = 0
 
@@ -20,7 +20,7 @@ NO_OUTAGE = "—"
 
 async def async_setup_entry(
     hass: HomeAssistant,
-    entry: OutageConfigEntry,
+    entry: ErmZapadConfigEntry,
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
     coordinator = entry.runtime_data
@@ -41,7 +41,7 @@ def summary(outage: Outage) -> str:
     return f"{outage.start:%d.%m %H:%M}–{outage.end.strftime(end_fmt)}"
 
 
-class _NextOutageBase(OutageEntity, SensorEntity):
+class _NextOutageBase(ErmZapadEntity, SensorEntity):
     _clock_interval = timedelta(minutes=1)
 
     def _next(self) -> Outage | None:
@@ -52,7 +52,7 @@ class _NextOutageBase(OutageEntity, SensorEntity):
 class NextOutageSensor(_NextOutageBase):
     """Readable time window of the next outage; '—' when none is published."""
 
-    def __init__(self, coordinator: OutageCoordinator) -> None:
+    def __init__(self, coordinator: ErmZapadCoordinator) -> None:
         super().__init__(coordinator, "next_outage")
 
     @property
@@ -74,7 +74,7 @@ class NextOutageTimeSensor(_NextOutageBase):
 
     _attr_device_class = SensorDeviceClass.TIMESTAMP
 
-    def __init__(self, coordinator: OutageCoordinator, key: str) -> None:
+    def __init__(self, coordinator: ErmZapadCoordinator, key: str) -> None:
         super().__init__(coordinator, key)
         self._field = "start" if key == "next_outage_start" else "end"
 
